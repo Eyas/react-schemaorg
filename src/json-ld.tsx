@@ -15,6 +15,7 @@
  */
 
 import * as React from "react";
+import type { JSX } from "react";
 import type { Thing, WithContext, Graph } from "schema-dts";
 
 interface JsonLdOptions {
