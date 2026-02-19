@@ -7,7 +7,7 @@ test("works", () => {
     helmetJsonLdProp<Person>({
       "@context": "https://schema.org",
       "@type": "Person",
-    })
+    }),
   ).toMatchInlineSnapshot(`
     Object {
       "innerHTML": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\"}",
@@ -19,7 +19,7 @@ test("works", () => {
     jsonLdScriptProps<Person>({
       "@context": "https://schema.org",
       "@type": "Person",
-    })
+    }),
   ).toMatchInlineSnapshot(`
     Object {
       "dangerouslySetInnerHTML": Object {
@@ -35,8 +35,8 @@ test("works", () => {
         "@context": "https://schema.org",
         "@type": "Person",
       },
-      /* options=*/ {}
-    )
+      /* options=*/ {},
+    ),
   ).toMatchInlineSnapshot(`
     Object {
       "dangerouslySetInnerHTML": Object {
@@ -52,8 +52,8 @@ test("works", () => {
         "@context": "https://schema.org",
         "@type": "Person",
       },
-      /* options=*/ { space: 2 }
-    )
+      /* options=*/ { space: 2 },
+    ),
   ).toMatchInlineSnapshot(`
     Object {
       "dangerouslySetInnerHTML": Object {
@@ -73,7 +73,7 @@ test("escapes JSON-LD-illegal chars", () => {
       "@context": "https://schema.org",
       "@type": "Person",
       name: "Foo</script>",
-    })
+    }),
   ).toMatchInlineSnapshot(`
     Object {
       "innerHTML": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\",\\"name\\":\\"Foo&lt;/script&gt;\\"}",
@@ -86,7 +86,7 @@ test("escapes JSON-LD-illegal chars", () => {
       "@context": "https://schema.org",
       "@type": "Person",
       name: "Foo</script>",
-    })
+    }),
   ).toMatchInlineSnapshot(`
     Object {
       "dangerouslySetInnerHTML": Object {
@@ -111,8 +111,8 @@ test("escapes JSON-LD-illegal chars", () => {
           copyrightYear: 2020,
         },
       },
-      { space: 2 }
-    )
+      { space: 2 },
+    ),
   ).toMatchInlineSnapshot(`
     Object {
       "innerHTML": "{
@@ -147,8 +147,8 @@ test("escapes JSON-LD-illegal chars", () => {
           copyrightYear: 2020,
         },
       },
-      { space: 2 }
-    )
+      { space: 2 },
+    ),
   ).toMatchInlineSnapshot(`
     Object {
       "dangerouslySetInnerHTML": Object {

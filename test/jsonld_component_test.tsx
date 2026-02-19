@@ -11,8 +11,8 @@ test("works", () => {
           "@context": "https://schema.org",
           "@type": "Person",
         }}
-      />
-    ).toJSON()
+      />,
+    ).toJSON(),
   ).toMatchInlineSnapshot(`
     <script
       dangerouslySetInnerHTML={
@@ -34,8 +34,8 @@ test("escapes JSON-LD-illegal chars", () => {
           "@type": "Person",
           name: "Foo</script>",
         }}
-      />
-    ).toJSON()
+      />,
+    ).toJSON(),
   ).toMatchInlineSnapshot(`
     <script
       dangerouslySetInnerHTML={
