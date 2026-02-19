@@ -25,7 +25,7 @@ jobs:
       - run: npm test
       - name: Coveralls - react-schemaorg
         uses: coverallsapp/github-action@master
-        if: ${{ matrix.node-version == '16.x' }}
+        if: ${{ matrix.node-version == '24.x' }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: ./coverage/lcov.info
