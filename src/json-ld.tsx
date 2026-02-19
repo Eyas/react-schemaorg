@@ -15,6 +15,7 @@
  */
 
 import * as React from "react";
+import type { JSX } from "react";
 import type { Thing, WithContext, Graph } from "schema-dts";
 
 interface JsonLdOptions {
@@ -46,10 +47,10 @@ interface JsonLdOptions {
  */
 export function JsonLd(props: JsonLdOptions & { item: Graph }): JSX.Element;
 export function JsonLd<T extends Thing>(
-  props: JsonLdOptions & { item: WithContext<T> }
+  props: JsonLdOptions & { item: WithContext<T> },
 ): JSX.Element;
 export function JsonLd(
-  props: JsonLdOptions & { item: Graph | WithContext<Thing> }
+  props: JsonLdOptions & { item: Graph | WithContext<Thing> },
 ) {
   return <script {...jsonLdScriptProps(props.item, props)} />;
 }
@@ -75,19 +76,19 @@ export function JsonLd(
  */
 export function jsonLdScriptProps(
   item: Graph,
-  options?: JsonLdOptions
+  options?: JsonLdOptions,
 ): JSX.IntrinsicElements["script"];
 export function jsonLdScriptProps<T extends Thing>(
   item: WithContext<T>,
-  options?: JsonLdOptions
+  options?: JsonLdOptions,
 ): JSX.IntrinsicElements["script"];
 export function jsonLdScriptProps(
   item: Graph | WithContext<Thing>,
-  options?: JsonLdOptions
+  options?: JsonLdOptions,
 ): JSX.IntrinsicElements["script"];
 export function jsonLdScriptProps(
   item: Graph | WithContext<Thing>,
-  options: JsonLdOptions = {}
+  options: JsonLdOptions = {},
 ): JSX.IntrinsicElements["script"] {
   return {
     type: "application/ld+json",
@@ -120,21 +121,21 @@ export function jsonLdScriptProps(
  */
 export function helmetJsonLdProp(
   item: Graph,
-  options?: JsonLdOptions
+  options?: JsonLdOptions,
 ): {
   type: "application/ld+json";
   innerHTML: string;
 };
 export function helmetJsonLdProp<T extends Thing>(
   item: WithContext<T>,
-  options?: JsonLdOptions
+  options?: JsonLdOptions,
 ): {
   type: "application/ld+json";
   innerHTML: string;
 };
 export function helmetJsonLdProp(
   item: WithContext<Thing> | Graph,
-  options: JsonLdOptions = {}
+  options: JsonLdOptions = {},
 ): {
   type: "application/ld+json";
   innerHTML: string;
@@ -161,7 +162,7 @@ const ESCAPE_ENTITIES = Object.freeze({
 });
 const ESCAPE_REGEX = new RegExp(
   `[${Object.keys(ESCAPE_ENTITIES).join("")}]`,
-  "g"
+  "g",
 );
 const ESCAPE_REPLACER = (t: string): string =>
   ESCAPE_ENTITIES[t as keyof typeof ESCAPE_ENTITIES];
