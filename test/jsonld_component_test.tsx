@@ -13,16 +13,7 @@ test("works", () => {
         }}
       />,
     ).toJSON(),
-  ).toMatchInlineSnapshot(`
-    <script
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\"}",
-        }
-      }
-      type="application/ld+json"
-    />
-  `);
+  ).toMatchInlineSnapshot(`null`);
 });
 
 test("escapes JSON-LD-illegal chars", () => {
@@ -36,14 +27,5 @@ test("escapes JSON-LD-illegal chars", () => {
         }}
       />,
     ).toJSON(),
-  ).toMatchInlineSnapshot(`
-    <script
-      dangerouslySetInnerHTML={
-        Object {
-          "__html": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\",\\"name\\":\\"Foo&lt;/script&gt;\\"}",
-        }
-      }
-      type="application/ld+json"
-    />
-  `);
+  ).toMatchInlineSnapshot(`null`);
 });

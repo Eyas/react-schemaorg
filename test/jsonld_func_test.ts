@@ -9,10 +9,10 @@ test("works", () => {
       "@type": "Person",
     }),
   ).toMatchInlineSnapshot(`
-    Object {
-      "innerHTML": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\"}",
-      "type": "application/ld+json",
-    }
+   {
+     "innerHTML": "{"@context":"https://schema.org","@type":"Person"}",
+     "type": "application/ld+json",
+   }
   `);
 
   expect(
@@ -21,12 +21,12 @@ test("works", () => {
       "@type": "Person",
     }),
   ).toMatchInlineSnapshot(`
-    Object {
-      "dangerouslySetInnerHTML": Object {
-        "__html": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\"}",
-      },
-      "type": "application/ld+json",
-    }
+   {
+     "dangerouslySetInnerHTML": {
+       "__html": "{"@context":"https://schema.org","@type":"Person"}",
+     },
+     "type": "application/ld+json",
+   }
   `);
 
   expect(
@@ -38,12 +38,12 @@ test("works", () => {
       /* options=*/ {},
     ),
   ).toMatchInlineSnapshot(`
-    Object {
-      "dangerouslySetInnerHTML": Object {
-        "__html": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\"}",
-      },
-      "type": "application/ld+json",
-    }
+   {
+     "dangerouslySetInnerHTML": {
+       "__html": "{"@context":"https://schema.org","@type":"Person"}",
+     },
+     "type": "application/ld+json",
+   }
   `);
 
   expect(
@@ -55,15 +55,15 @@ test("works", () => {
       /* options=*/ { space: 2 },
     ),
   ).toMatchInlineSnapshot(`
-    Object {
-      "dangerouslySetInnerHTML": Object {
-        "__html": "{
-      \\"@context\\": \\"https://schema.org\\",
-      \\"@type\\": \\"Person\\"
-    }",
-      },
-      "type": "application/ld+json",
-    }
+   {
+     "dangerouslySetInnerHTML": {
+       "__html": "{
+     "@context": "https://schema.org",
+     "@type": "Person"
+   }",
+     },
+     "type": "application/ld+json",
+   }
   `);
 });
 
@@ -75,10 +75,10 @@ test("escapes JSON-LD-illegal chars", () => {
       name: "Foo</script>",
     }),
   ).toMatchInlineSnapshot(`
-    Object {
-      "innerHTML": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\",\\"name\\":\\"Foo&lt;/script&gt;\\"}",
-      "type": "application/ld+json",
-    }
+   {
+     "innerHTML": "{"@context":"https://schema.org","@type":"Person","name":"Foo&lt;/script&gt;"}",
+     "type": "application/ld+json",
+   }
   `);
 
   expect(
@@ -88,12 +88,12 @@ test("escapes JSON-LD-illegal chars", () => {
       name: "Foo</script>",
     }),
   ).toMatchInlineSnapshot(`
-    Object {
-      "dangerouslySetInnerHTML": Object {
-        "__html": "{\\"@context\\":\\"https://schema.org\\",\\"@type\\":\\"Person\\",\\"name\\":\\"Foo&lt;/script&gt;\\"}",
-      },
-      "type": "application/ld+json",
-    }
+   {
+     "dangerouslySetInnerHTML": {
+       "__html": "{"@context":"https://schema.org","@type":"Person","name":"Foo&lt;/script&gt;"}",
+     },
+     "type": "application/ld+json",
+   }
   `);
 });
 
@@ -114,24 +114,24 @@ test("escapes JSON-LD-illegal chars", () => {
       { space: 2 },
     ),
   ).toMatchInlineSnapshot(`
-    Object {
-      "innerHTML": "{
-      \\"@context\\": \\"https://schema.org\\",
-      \\"@type\\": \\"Person\\",
-      \\"name\\": [
-        \\"Foo&lt;/script&gt;\\",
-        null,
-        null
-      ],
-      \\"knows\\": [],
-      \\"knowsAbout\\": {
-        \\"@type\\": \\"CreativeWork\\",
-        \\"name\\": \\"Foo\\",
-        \\"copyrightYear\\": 2020
-      }
-    }",
-      "type": "application/ld+json",
-    }
+   {
+     "innerHTML": "{
+     "@context": "https://schema.org",
+     "@type": "Person",
+     "name": [
+       "Foo&lt;/script&gt;",
+       null,
+       null
+     ],
+     "knows": [],
+     "knowsAbout": {
+       "@type": "CreativeWork",
+       "name": "Foo",
+       "copyrightYear": 2020
+     }
+   }",
+     "type": "application/ld+json",
+   }
   `);
 
   expect(
@@ -150,25 +150,25 @@ test("escapes JSON-LD-illegal chars", () => {
       { space: 2 },
     ),
   ).toMatchInlineSnapshot(`
-    Object {
-      "dangerouslySetInnerHTML": Object {
-        "__html": "{
-      \\"@context\\": \\"https://schema.org\\",
-      \\"@type\\": \\"Person\\",
-      \\"name\\": [
-        \\"Foo&lt;/script&gt;\\",
-        null,
-        null
-      ],
-      \\"knows\\": [],
-      \\"knowsAbout\\": {
-        \\"@type\\": \\"CreativeWork\\",
-        \\"name\\": \\"Foo\\",
-        \\"copyrightYear\\": 2020
-      }
-    }",
-      },
-      "type": "application/ld+json",
-    }
+   {
+     "dangerouslySetInnerHTML": {
+       "__html": "{
+     "@context": "https://schema.org",
+     "@type": "Person",
+     "name": [
+       "Foo&lt;/script&gt;",
+       null,
+       null
+     ],
+     "knows": [],
+     "knowsAbout": {
+       "@type": "CreativeWork",
+       "name": "Foo",
+       "copyrightYear": 2020
+     }
+   }",
+     },
+     "type": "application/ld+json",
+   }
   `);
 });
