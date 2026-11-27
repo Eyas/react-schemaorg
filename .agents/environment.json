@@ -1,0 +1,3 @@
+{
+  "install": "git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' && (git remote get-url upstream >/dev/null 2>&1 && git remote set-url upstream https://github.com/google/react-schemaorg.git || git remote add upstream https://github.com/google/react-schemaorg.git) && (git remote get-url google >/dev/null 2>&1 && git remote set-url google https://github.com/google/react-schemaorg.git || git remote add google https://github.com/google/react-schemaorg.git) && git config remote.upstream.gh-resolved base && git fetch --all --prune && npm ci --no-audit --no-fund && npm run build"
+}
