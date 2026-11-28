@@ -1,28 +1,11 @@
 import * as React from "react";
-import { JsonLd } from "../src";
+import { renderToStaticMarkup } from "react-dom/server";
 import { Person, WithContext } from "schema-dts";
-import {
-  act,
-  create,
-  ReactTestRenderer,
-  ReactTestRendererJSON,
-} from "react-test-renderer";
-
-(
-  global as typeof global & { IS_REACT_ACT_ENVIRONMENT?: boolean }
-).IS_REACT_ACT_ENVIRONMENT = true;
-
-function renderJson(element: React.ReactElement): ReactTestRendererJSON {
-  let renderer: ReactTestRenderer;
-  act(() => {
-    renderer = create(element);
-  });
-  return renderer!.toJSON() as ReactTestRendererJSON;
-}
+import { JsonLd } from "../src";
 
 test("works", () => {
   expect(
-    renderJson(
+    renderToStaticMarkup(
       <JsonLd<Person>
         item={{
           "@context": "https://schema.org",
@@ -30,21 +13,14 @@ test("works", () => {
         }}
       />,
     ),
-  ).toMatchInlineSnapshot(`
-   <script
-     dangerouslySetInnerHTML={
-       {
-         "__html": "{"@context":"https://schema.org","@type":"Person"}",
-       }
-     }
-     type="application/ld+json"
-   />
-  `);
+  ).toMatchInlineSnapshot(
+    `"<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person"}</script>"`,
+  );
 });
 
 test("escapes JSON-LD-illegal chars in values", () => {
   expect(
-    renderJson(
+    renderToStaticMarkup(
       <JsonLd<Person>
         item={{
           "@context": "https://schema.org",
@@ -53,16 +29,9 @@ test("escapes JSON-LD-illegal chars in values", () => {
         }}
       />,
     ),
-  ).toMatchInlineSnapshot(`
-   <script
-     dangerouslySetInnerHTML={
-       {
-         "__html": "{"@context":"https://schema.org","@type":"Person","name":"Foo\\u003c/script\\u003e"}",
-       }
-     }
-     type="application/ld+json"
-   />
-  `);
+  ).toMatchInlineSnapshot(
+    `"<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Foo\\u003c/script\\u003e"}</script>"`,
+  );
 });
 
 test("escapes JSON-LD-illegal chars in object keys", () => {
@@ -73,16 +42,12 @@ test("escapes JSON-LD-illegal chars in object keys", () => {
     [scriptTag]: "some value",
   } as unknown as WithContext<Person>;
 
-  expect(renderJson(<JsonLd<Person> item={item} />)).toMatchInlineSnapshot(`
-   <script
-     dangerouslySetInnerHTML={
-       {
-         "__html": "{"@context":"https://schema.org","@type":"Person","\\u003c/script\\u003e\\u003cscript\\u003ealert('test')\\u003c/script\\u003e":"some value"}",
-       }
-     }
-     type="application/ld+json"
-   />
-  `);
+  const html = renderToStaticMarkup(<JsonLd<Person> item={item} />);
+  expect(html).toMatchInlineSnapshot(
+    `"<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","\\u003c/script\\u003e\\u003cscript\\u003ealert('test')\\u003c/script\\u003e":"some value"}</script>"`,
+  );
+  // Only the single closing </script> tag at the end should be present.
+  expect(html.match(/<\/script>/gi)).toEqual(["</script>"]);
 });
 
 test("ignores invalid or inherited space on JsonLd component", () => {
@@ -91,20 +56,16 @@ test("ignores invalid or inherited space on JsonLd component", () => {
     "@type": "Person",
     name: "Alice",
   };
-  const renderedBadSpace = renderJson(
-    <JsonLd<Person> item={item} space={'"@type":1,'} />,
-  );
-  expect(renderedBadSpace.props.dangerouslySetInnerHTML.__html).toBe(
-    JSON.stringify(item),
-  );
+  const expected = `<script type="application/ld+json">${JSON.stringify(item)}</script>`;
+
+  expect(
+    renderToStaticMarkup(<JsonLd<Person> item={item} space={'"@type":1,'} />),
+  ).toBe(expected);
 
   const proto = Object.prototype as Record<string, unknown>;
   proto.space = '"@id":0,';
   try {
-    const renderedInherited = renderJson(<JsonLd<Person> item={item} />);
-    expect(renderedInherited.props.dangerouslySetInnerHTML.__html).toBe(
-      JSON.stringify(item),
-    );
+    expect(renderToStaticMarkup(<JsonLd<Person> item={item} />)).toBe(expected);
   } finally {
     delete proto.space;
   }
