@@ -88,12 +88,12 @@ export function jsonLdScriptProps(
 ): JSX.IntrinsicElements["script"];
 export function jsonLdScriptProps(
   item: Graph | WithContext<Thing>,
-  options: JsonLdOptions = {},
+  options?: JsonLdOptions,
 ): JSX.IntrinsicElements["script"] {
   return {
     type: "application/ld+json",
     dangerouslySetInnerHTML: {
-      __html: JSON.stringify(item, safeJsonLdReplacer, options.space),
+      __html: serializeJsonLd(item, options),
     },
   };
 }
@@ -135,70 +135,94 @@ export function helmetJsonLdProp<T extends Thing>(
 };
 export function helmetJsonLdProp(
   item: WithContext<Thing> | Graph,
-  options: JsonLdOptions = {},
+  options?: JsonLdOptions,
 ): {
   type: "application/ld+json";
   innerHTML: string;
 } {
   return {
     type: "application/ld+json" as const,
-    innerHTML: JSON.stringify(item, safeJsonLdReplacer, options.space),
+    innerHTML: serializeJsonLd(item, options),
   };
 }
 
-type JsonValueScalar = string | boolean | number;
-type JsonValue =
-  | JsonValueScalar
-  | Array<JsonValue>
-  | { [key: string]: JsonValue };
-type JsonReplacer = (_: string, value: JsonValue) => JsonValue | undefined;
+const ESCAPE_CHARS: Readonly<Record<string, string | undefined>> =
+  Object.freeze(
+    Object.assign(Object.create(null), {
+      "<": "\\u003c",
+      ">": "\\u003e",
+      "&": "\\u0026",
+      "\u2028": "\\u2028",
+      "\u2029": "\\u2029",
+      "\uFFFE": "\\ufffe",
+      "\uFFFF": "\\uffff",
+    }),
+  );
+const ESCAPE_REGEX =
+  /[\uD800-\uDBFF][\uDC00-\uDFFF]|[<>&\u2028\u2029\uFFFE\uFFFF\uD800-\uDFFF]/g;
+const ESCAPE_REPLACER = (ch: string): string => {
+  if (ch.length === 2) {
+    return ch;
+  }
+  return (
+    ESCAPE_CHARS[ch] || `\\u${ch.charCodeAt(0).toString(16).padStart(4, "0")}`
+  );
+};
 
-const ESCAPE_ENTITIES = Object.freeze({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&apos;",
-});
-const ESCAPE_REGEX = new RegExp(
-  `[${Object.keys(ESCAPE_ENTITIES).join("")}]`,
-  "g",
-);
-const ESCAPE_REPLACER = (t: string): string =>
-  ESCAPE_ENTITIES[t as keyof typeof ESCAPE_ENTITIES];
+const JSON_WHITESPACE_REGEX = /^[ \t\r\n]*$/;
 
 /**
- * A replacer for JSON.stringify to strip JSON-LD of illegal HTML entities
- * per https://www.w3.org/TR/json-ld11/#restrictions-for-contents-of-json-ld-script-elements
+ * Extracts a safe, RFC 8259-compliant `space` value from own properties of
+ * `options`, ignoring inherited properties, boxed primitives, non-finite
+ * numbers, and non-whitespace strings.
  */
-const safeJsonLdReplacer: JsonReplacer = (() => {
-  // Replace per https://www.w3.org/TR/json-ld11/#restrictions-for-contents-of-json-ld-script-elements
-  // Solution from https://stackoverflow.com/a/5499821/864313
-  return (_: string, value: JsonValue): JsonValue | undefined => {
-    switch (typeof value) {
-      case "object":
-        // Omit null values.
-        if (value === null) {
-          return undefined;
-        }
+function normalizeSpace(options?: JsonLdOptions): string | number | undefined {
+  if (
+    options == null ||
+    typeof options !== "object" ||
+    !Object.prototype.hasOwnProperty.call(options, "space")
+  ) {
+    return undefined;
+  }
+  const { space } = options;
+  if (typeof space === "number") {
+    return Number.isFinite(space)
+      ? Math.min(10, Math.max(0, Math.trunc(space)))
+      : undefined;
+  }
+  if (typeof space === "string") {
+    const truncated = space.slice(0, 10);
+    return JSON_WHITESPACE_REGEX.test(truncated) ? truncated : undefined;
+  }
+  return undefined;
+}
 
-        return value; // JSON.stringify will recursively call replacer.
-      case "number":
-      case "boolean":
-      case "bigint":
-        return value; // These values are not risky.
-      case "string":
-        return value.replace(ESCAPE_REGEX, ESCAPE_REPLACER);
-      default: {
-        // We shouldn't expect other types.
-        isNever(value);
+/**
+ * A replacer for JSON.stringify that omits null object properties
+ * (while preserving JSON.stringify's standard behavior for arrays).
+ */
+function omitNullReplacer(_key: string, value: unknown): unknown {
+  return value === null ? undefined : value;
+}
 
-        // JSON.stringify will remove this element.
-        return undefined;
-      }
-    }
-  };
-})();
-
-// Utility: Assert never
-function isNever(_: never): void {}
+/**
+ * Serializes JSON-LD into valid RFC 8259 JSON safe for embedding inside
+ * HTML/XHTML `<script type="application/ld+json">` elements.
+ *
+ * Escapes `<`, `>`, `&`, U+2028, U+2029, XML-illegal noncharacters
+ * (U+FFFE/U+FFFF), and unpaired UTF-16 surrogates on the serialized JSON
+ * string using standard JSON Unicode escapes (`\uXXXX`) so markup sequences
+ * like `</script>`, `<!--`, `-->`, or `]]>` cannot appear anywhere in the
+ * output (including in object keys, boxed strings, or `JSON.rawJSON()` values)
+ * while still decoding losslessly via `JSON.parse()`.
+ */
+function serializeJsonLd(
+  item: Graph | WithContext<Thing>,
+  options?: JsonLdOptions,
+): string {
+  const json = JSON.stringify(item, omitNullReplacer, normalizeSpace(options));
+  if (json === undefined) {
+    return "";
+  }
+  return json.replace(ESCAPE_REGEX, ESCAPE_REPLACER);
+}
